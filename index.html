@@ -608,6 +608,8 @@ body{background:var(--cream);color:var(--text);font-family:'Lato',sans-serif;fon
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 // ── PÉTALAS
 (function(){
@@ -632,11 +634,55 @@ body{background:var(--cream);color:var(--text);font-family:'Lato',sans-serif;fon
   },200);
 })();
 
-// ── STORAGE
-const STORAGE_KEY='rsvp_rosana_italo_2026';
+// ── FIREBASE CONFIG
 const ADMIN_PASS='rosana2026';
-function load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch(e){return[]}}
-function save(l){localStorage.setItem(STORAGE_KEY,JSON.stringify(l))}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA2wSCks_K5xYhZSP7iyjhbIhxt2VpNSEU",
+  authDomain: "site-casamento-b0636.firebaseapp.com",
+  projectId: "site-casamento-b0636",
+  storageBucket: "site-casamento-b0636.firebasestorage.app",
+  messagingSenderId: "28343845694",
+  appId: "1:28343845694:web:4a4dbcbbf96b3f50c1626f"
+};
+
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const COLLECTION = 'convidados';
+
+// Salvar convidado no Firestore
+async function saveGuest(g) {
+  try {
+    await db.collection(COLLECTION).doc(String(g.id)).set(g);
+    return true;
+  } catch(e) {
+    console.error('Erro ao salvar:', e);
+    return false;
+  }
+}
+
+// Carregar todos os convidados do Firestore
+async function loadGuests() {
+  try {
+    const snap = await db.collection(COLLECTION).orderBy('id','asc').get();
+    return snap.docs.map(d => d.data());
+  } catch(e) {
+    console.error('Erro ao carregar:', e);
+    return [];
+  }
+}
+
+// Deletar convidado do Firestore
+async function deleteGuest(id) {
+  try {
+    await db.collection(COLLECTION).doc(String(id)).delete();
+    return true;
+  } catch(e) {
+    console.error('Erro ao deletar:', e);
+    return false;
+  }
+}
 
 // ── PAGE
 function showPage(n){
@@ -730,18 +776,21 @@ function goStep(n){
   document.getElementById('rsvp').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function submitNo(){
+async function submitNo(){
   const nm=document.getElementById('input-name-no').value.trim();
   const ph=document.getElementById('input-phone-no').value.trim();
   if(!nm){hl('input-name-no');return}
   if(!ph){hl('input-phone-no');return}
   const reason=document.getElementById('input-reason').value.trim();
   const g={id:Date.now(),name:nm,phone:ph,attendance:'no',hasCompanion:false,companionQty:0,familyNames:[],totalPeople:0,reason,date:new Date().toLocaleString('pt-BR')};
-  const list=load();list.push(g);save(list);
-  // Mostrar sucesso
+
+  const btn = document.querySelector('#step-2-no .btn-primary');
+  btn.textContent = 'Salvando...'; btn.style.opacity='0.7'; btn.style.pointerEvents='none';
+
+  const ok = await saveGuest(g);
+
   ['step-1','step-2','step-2-no','step-3'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el)el.classList.remove('active');
+    const el=document.getElementById(id); if(el)el.classList.remove('active');
   });
   document.getElementById('steps-indicator').style.display='none';
   document.getElementById('success-title').textContent='Recebemos sua resposta 💙';
@@ -824,22 +873,22 @@ function buildSummary(){
   document.getElementById('summary-card').innerHTML=h;
 }
 
-function submitRSVP(){
+async function submitRSVP(){
   const nm=document.getElementById('input-name').value.trim();
   const ph=document.getElementById('input-phone').value.trim();
   const fam=hasCompanion?Array.from(document.querySelectorAll('.guest-name-input')).map(i=>i.value.trim()).filter(Boolean):[];
   const total=attendance==='yes'?(hasCompanion?1+companionQty:1):0;
   const g={id:Date.now(),name:nm,phone:ph,attendance,hasCompanion:hasCompanion||false,companionQty:hasCompanion?companionQty:0,familyNames:fam,totalPeople:total,date:new Date().toLocaleString('pt-BR')};
-  const list=load();list.push(g);save(list);
+
+  const btn = document.querySelector('#step-3 .btn-primary');
+  btn.textContent = 'Salvando...'; btn.style.opacity='0.7'; btn.style.pointerEvents='none';
+
+  await saveGuest(g);
+
   ['step-1','step-2','step-2-no','step-3'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active');});
   document.getElementById('steps-indicator').style.display='none';
-  if(attendance==='yes'){
-    document.getElementById('success-title').textContent='Que alegria, '+nm.split(' ')[0]+'!';
-    document.getElementById('success-text').textContent='Sua presença foi confirmada com sucesso. Mal podemos esperar para celebrar este momento especial com você!';
-  }else{
-    document.getElementById('success-title').textContent='Recebemos sua resposta';
-    document.getElementById('success-text').textContent='Que pena que você não poderá estar presente, '+nm.split(' ')[0]+'. Obrigado por nos avisar com carinho!';
-  }
+  document.getElementById('success-title').textContent='Que alegria, '+nm.split(' ')[0]+'!';
+  document.getElementById('success-text').textContent='Sua presença foi confirmada com sucesso. Mal podemos esperar para celebrar este momento especial com você!';
   document.getElementById('success-summary').innerHTML=document.getElementById('summary-card').innerHTML;
   document.getElementById('success-panel').classList.add('visible');
   document.getElementById('rsvp').scrollIntoView({behavior:'smooth',block:'start'});
@@ -847,26 +896,31 @@ function submitRSVP(){
 
 // ── ADMIN
 let currentFilter='all';
+let cachedGuests=[];
+
 function setFilter(f){
   currentFilter=f;
   ['all','yes','no'].forEach(k=>document.getElementById('filter-'+k).classList.toggle('active',k===f));
   renderTable();
 }
-function renderAdmin(){
-  const gs=load();
-  const yes=gs.filter(g=>g.attendance==='yes');
-  const no=gs.filter(g=>g.attendance==='no');
+
+async function renderAdmin(){
+  document.getElementById('guests-tbody').innerHTML='<tr><td colspan="8" style="text-align:center;color:rgba(255,255,255,.3);padding:30px;font-family:Lato,sans-serif;font-size:13px">Carregando...</td></tr>';
+  cachedGuests = await loadGuests();
+
+  const yes=cachedGuests.filter(g=>g.attendance==='yes');
+  const no=cachedGuests.filter(g=>g.attendance==='no');
   const people=yes.reduce((a,g)=>a+(g.totalPeople||1),0);
   document.getElementById('stat-yes').textContent=yes.length;
   document.getElementById('stat-no').textContent=no.length;
   document.getElementById('stat-people').textContent=people;
-  document.getElementById('stat-total').textContent=gs.length;
+  document.getElementById('stat-total').textContent=cachedGuests.length;
   renderTable();
 }
+
 function renderTable(){
-  const gs=load();
   const q=document.getElementById('admin-search').value.toLowerCase();
-  const filtered=gs.filter(g=>{
+  const filtered=cachedGuests.filter(g=>{
     const mf=currentFilter==='all'||g.attendance===currentFilter;
     const ms=!q||g.name.toLowerCase().includes(q)||g.phone.includes(q);
     return mf&&ms;
@@ -877,20 +931,23 @@ function renderTable(){
   empty.style.display='none';
   tbody.innerHTML=filtered.map((g,i)=>{
     const badge=g.attendance==='yes'?'<span class="badge badge-yes">Confirmado</span>':'<span class="badge badge-no">Não vai</span>';
-    const fam=g.familyNames&&g.familyNames.length?g.familyNames.join('<br>'):(g.hasCompanion?g.companionQty+' pessoa(s)':(g.reason?'<em>'+g.reason+'</em>':'—'));
+    const fam=g.familyNames&&g.familyNames.length?g.familyNames.join('<br>'):(g.hasCompanion?g.companionQty+' pessoa(s)':(g.reason?'<em style="color:rgba(255,255,255,.35)">'+g.reason+'</em>':'—'));
     const cnt=g.attendance==='yes'?(g.totalPeople||1):'—';
     return`<tr><td class="td-date" style="color:rgba(255,255,255,.2)">${i+1}</td><td class="td-name">${g.name}</td><td class="td-phone">${g.phone}</td><td>${badge}</td><td class="td-count">${cnt}</td><td class="td-family">${fam}</td><td class="td-date">${g.date}</td><td><button class="delete-btn" onclick="del(${g.id})" title="Remover">✕</button></td></tr>`;
   }).join('');
 }
-function del(id){
+
+async function del(id){
   if(!confirm('Remover este convidado da lista?'))return;
-  save(load().filter(g=>g.id!==id));renderAdmin();
+  await deleteGuest(id);
+  await renderAdmin();
 }
-function exportCSV(){
-  const gs=load();
+
+async function exportCSV(){
+  const gs = cachedGuests.length ? cachedGuests : await loadGuests();
   if(!gs.length){alert('Nenhum convidado para exportar.');return}
-  const h=['Nome','WhatsApp','Presença','Acompanhantes','Total Pessoas','Família','Data'];
-  const rows=gs.map(g=>[g.name,g.phone,g.attendance==='yes'?'Confirmado':'Não vai',g.companionQty||0,g.totalPeople||1,(g.familyNames||[]).join(' | '),g.date]);
+  const h=['Nome','WhatsApp','Presença','Acompanhantes','Total Pessoas','Família','Motivo','Data'];
+  const rows=gs.map(g=>[g.name,g.phone,g.attendance==='yes'?'Confirmado':'Não vai',g.companionQty||0,g.totalPeople||1,(g.familyNames||[]).join(' | '),g.reason||'',g.date]);
   const csv=[h,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
