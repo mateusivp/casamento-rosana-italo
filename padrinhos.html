@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temos algo a dizer...</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --marsala:#7a2535;--marsala-light:#a83048;--marsala-pale:#f5e8eb;
+  --marsala-dark:#4a0f1a;--gold:#c9a84c;--gold-light:#e8cc7a;
+  --cream:#fdf9f4;--dark:#1a0810;--text:#2a0a12;--muted:#7a4050;
+}
+html{scroll-behavior:smooth}
+body{background:var(--dark);color:#fff;font-family:'Lato',sans-serif;overflow-x:hidden;cursor:default}
+
+/* ── SCREENS ── */
+.screen{min-height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.screen.active{display:flex}
+
+/* ── PARTÍCULAS ── */
+canvas#particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+
+/* ══════════════════
+   TELA 1 — MISTÉRIO
+══════════════════ */
+#s1{background:radial-gradient(ellipse at center,#2a0a18 0%,#0d0308 100%);z-index:1}
+.s1-content{position:relative;z-index:2;text-align:center;padding:40px 24px}
+
+.envelope-wrap{
+  width:140px;height:100px;margin:0 auto 48px;position:relative;cursor:pointer;
+}
+.envelope{
+  width:140px;height:100px;background:linear-gradient(145deg,#8b1a2e,#5a0f1e);
+  border-radius:4px;position:relative;box-shadow:0 8px 40px rgba(139,26,46,0.6);
+  animation:floatEnv 3s ease-in-out infinite;cursor:pointer;
+  transition:transform .3s,box-shadow .3s;
+}
+.envelope:hover{transform:scale(1.05);box-shadow:0 12px 60px rgba(139,26,46,0.9)}
+.envelope::before{
+  content:'';position:absolute;top:0;left:0;right:0;
+  border-left:70px solid transparent;border-right:70px solid transparent;
+  border-top:50px solid #a02040;
+  transition:transform .6s ease;transform-origin:top center;
+}
+.envelope.open::before{transform:rotateX(180deg)}
+.envelope::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  border-left:70px solid transparent;border-right:70px solid transparent;
+  border-bottom:55px solid #6a1020;
+}
+.env-seal{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:36px;height:36px;background:var(--gold);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;z-index:3;box-shadow:0 0 20px rgba(201,168,76,0.8);
+  animation:sealPulse 2s ease infinite;
+}
+@keyframes floatEnv{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes sealPulse{0%,100%{box-shadow:0 0 20px rgba(201,168,76,0.8)}50%{box-shadow:0 0 40px rgba(201,168,76,1),0 0 60px rgba(201,168,76,0.4)}}
+@keyframes floatUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+@keyframes shimmerGold{
+  0%{background-position:-200% center}100%{background-position:200% center}
+}
+@keyframes heartBeat{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes confettiFall{
+  0%{transform:translateY(-20px) rotate(0deg) scaleX(1);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg) scaleX(-1);opacity:0}
+}
+@keyframes revealChar{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes glowPulse{
+  0%,100%{text-shadow:0 0 20px rgba(201,168,76,0.5)}
+  50%{text-shadow:0 0 60px rgba(201,168,76,1),0 0 100px rgba(201,168,76,0.5)}
+}
+@keyframes doorOpen{
+  0%{transform:perspective(800px) rotateY(0deg)}
+  100%{transform:perspective(800px) rotateY(-110deg)}
+}
+@keyframes bounceIn{
+  0%{transform:scale(0);opacity:0}
+  60%{transform:scale(1.15)}
+  80%{transform:scale(0.95)}
+  100%{transform:scale(1);opacity:1}
+}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes tada{
+  0%{transform:scale(1) rotate(0)}
+  10%,20%{transform:scale(0.9) rotate(-6deg)}
+  30%,50%,70%,90%{transform:scale(1.1) rotate(6deg)}
+  40%,60%,80%{transform:scale(1.1) rotate(-6deg)}
+  100%{transform:scale(1) rotate(0)}
+}
+
+.mystery-tag{
+  font-family:'Lato',sans-serif;font-weight:300;font-size:11px;
+  letter-spacing:.5em;text-transform:uppercase;color:rgba(255,255,255,.4);
+  margin-bottom:20px;animation:floatUp 1s ease .2s both;
+}
+.mystery-title{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:clamp(38px,9vw,72px);color:#fff;
+  line-height:1.1;margin-bottom:12px;
+  animation:floatUp 1s ease .4s both;
+}
+.mystery-sub{
+  font-family:'Cormorant Garamond',serif;font-size:clamp(17px,4vw,22px);
+  color:rgba(255,255,255,.55);margin-bottom:52px;
+  animation:floatUp 1s ease .6s both;
+}
+.open-btn{
+  font-family:'Lato',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.4em;text-transform:uppercase;
+  border:1px solid rgba(201,168,76,.6);color:var(--gold);
+  background:transparent;padding:16px 40px;cursor:pointer;
+  transition:all .3s;animation:floatUp 1s ease .8s both;
+  position:relative;overflow:hidden;
+}
+.open-btn::before{
+  content:'';position:absolute;inset:0;background:var(--gold);
+  transform:translateX(-100%);transition:transform .4s ease;z-index:0;
+}
+.open-btn:hover::before{transform:translateX(0)}
+.open-btn:hover{color:var(--dark)}
+.open-btn span{position:relative;z-index:1}
+
+/* ══════════════════
+   TELA 2 — REVELAÇÃO
+══════════════════ */
+#s2{background:var(--cream);color:var(--text)}
+.s2-content{position:relative;z-index:2;text-align:center;padding:60px 24px;max-width:700px;margin:0 auto}
+
+/* Porta dramática */
+.door-container{
+  width:200px;height:280px;margin:0 auto 48px;position:relative;perspective:800px;
+}
+.door-left,.door-right{
+  position:absolute;top:0;width:50%;height:100%;
+  background:linear-gradient(145deg,var(--marsala),var(--marsala-dark));
+  transform-origin:left center;
+  border:2px solid rgba(201,168,76,.4);
+  display:flex;align-items:center;justify-content:center;
+  font-size:40px;
+  box-shadow:inset -4px 0 20px rgba(0,0,0,.3);
+}
+.door-right{
+  left:50%;transform-origin:right center;
+  box-shadow:inset 4px 0 20px rgba(0,0,0,.3);
+}
+.door-left.open{animation:doorOpen .8s cubic-bezier(.4,0,.2,1) forwards}
+.door-right.open{animation:doorOpen .8s cubic-bezier(.4,0,.2,1) forwards;transform-origin:right center}
+.door-right.open{animation:doorOpenRight .8s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes doorOpenRight{
+  0%{transform:perspective(800px) rotateY(0deg)}
+  100%{transform:perspective(800px) rotateY(110deg)}
+}
+.door-reveal{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(ellipse,#fff8e8,#fdf5f0);
+  z-index:-1;
+  border:2px solid rgba(201,168,76,.3);
+}
+.door-reveal-icon{font-size:70px;animation:bounceIn .6s ease .9s both}
+
+.reveal-badge{
+  display:inline-block;
+  font-family:'Lato',sans-serif;font-weight:700;font-size:10px;
+  letter-spacing:.5em;text-transform:uppercase;
+  background:var(--marsala);color:#fff;
+  padding:8px 24px;margin-bottom:24px;
+  animation:scaleIn .6s ease 1s both;
+}
+.reveal-title{
+  font-family:'Playfair Display',serif;font-style:italic;font-weight:900;
+  font-size:clamp(32px,8vw,64px);color:var(--marsala);
+  margin-bottom:8px;animation:floatUp .8s ease 1.1s both;
+}
+.reveal-names{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:clamp(22px,5vw,36px);color:var(--marsala-light);
+  margin-bottom:28px;animation:floatUp .8s ease 1.2s both;
+}
+.reveal-text{
+  font-family:'Cormorant Garamond',serif;font-size:clamp(17px,4vw,21px);
+  color:var(--muted);line-height:2;margin-bottom:36px;
+  animation:floatUp .8s ease 1.3s both;
+}
+.hearts-row{
+  display:flex;justify-content:center;gap:8px;margin-bottom:36px;
+  animation:floatUp .8s ease 1.35s both;
+}
+.h-icon{font-size:28px;animation:heartBeat 1.5s ease infinite}
+.h-icon:nth-child(2){animation-delay:.2s;font-size:36px}
+.h-icon:nth-child(3){animation-delay:.4s}
+.h-icon:nth-child(4){animation-delay:.6s;font-size:36px}
+.h-icon:nth-child(5){animation-delay:.8s}
+
+.next-btn{
+  font-family:'Lato',sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:.35em;text-transform:uppercase;
+  background:var(--marsala);color:#fff;border:none;
+  padding:18px 48px;cursor:pointer;
+  box-shadow:0 4px 24px rgba(122,37,53,.4);
+  transition:all .3s;animation:floatUp .8s ease 1.5s both;
+}
+.next-btn:hover{background:var(--marsala-dark);transform:translateY(-3px);box-shadow:0 8px 32px rgba(122,37,53,.6)}
+
+/* ══════════════════
+   TELA 3 — PEDIDO
+══════════════════ */
+#s3{background:linear-gradient(160deg,#0d0308 0%,#1e0510 50%,#0d0308 100%)}
+.s3-content{position:relative;z-index:2;text-align:center;padding:60px 24px;max-width:680px;margin:0 auto}
+
+.ring-wrap{margin:0 auto 40px;animation:floatUp .8s ease .3s both}
+.ring-icon{font-size:80px;animation:spin 20s linear infinite;display:block}
+
+.s3-label{
+  font-family:'Lato',sans-serif;font-weight:300;font-size:11px;
+  letter-spacing:.5em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:16px;animation:floatUp .8s ease .4s both;
+}
+.s3-title{
+  font-family:'Playfair Display',serif;font-weight:900;font-style:italic;
+  font-size:clamp(36px,9vw,70px);
+  background:linear-gradient(90deg,var(--gold-light) 0%,var(--gold) 50%,var(--gold-light) 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmerGold 3s linear infinite,floatUp .8s ease .5s both;
+  margin-bottom:16px;
+}
+.s3-verse{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(16px,4vw,20px);color:rgba(255,255,255,.6);
+  line-height:2;margin-bottom:12px;animation:floatUp .8s ease .6s both;
+}
+.s3-verse-ref{
+  font-family:'Lato',sans-serif;font-weight:400;font-size:13px;
+  letter-spacing:.15em;color:var(--gold);margin-bottom:40px;
+  animation:floatUp .8s ease .65s both;
+}
+.s3-text{
+  font-family:'Cormorant Garamond',serif;font-size:clamp(18px,4.5vw,24px);
+  color:rgba(255,255,255,.85);line-height:2;margin-bottom:48px;
+  animation:floatUp .8s ease .7s both;
+}
+.s3-text strong{color:var(--gold-light);font-weight:600}
+
+.decision-btns{
+  display:flex;gap:20px;justify-content:center;flex-wrap:wrap;
+  animation:floatUp .8s ease .9s both;
+}
+.btn-accept{
+  font-family:'Lato',sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:.3em;text-transform:uppercase;
+  background:linear-gradient(135deg,var(--gold),#b8892e);color:var(--dark);
+  border:none;padding:20px 44px;cursor:pointer;
+  box-shadow:0 4px 30px rgba(201,168,76,.5);
+  transition:all .3s;position:relative;overflow:hidden;
+}
+.btn-accept::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--gold-light),var(--gold));
+  opacity:0;transition:opacity .3s;
+}
+.btn-accept:hover::before{opacity:1}
+.btn-accept:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 10px 40px rgba(201,168,76,.7)}
+.btn-accept span{position:relative;z-index:1}
+
+.btn-decline{
+  font-family:'Lato',sans-serif;font-weight:400;font-size:12px;
+  letter-spacing:.25em;text-transform:uppercase;
+  background:transparent;color:rgba(255,255,255,.35);
+  border:1px solid rgba(255,255,255,.15);padding:20px 36px;cursor:pointer;
+  transition:all .3s;
+}
+.btn-decline:hover{color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.35)}
+
+/* ══════════════════
+   TELA 4 — CELEBRAÇÃO
+══════════════════ */
+#s4{background:linear-gradient(160deg,#0a0205 0%,#1a0510 50%,#0a0205 100%)}
+.s4-content{position:relative;z-index:2;text-align:center;padding:48px 24px;max-width:680px;margin:0 auto}
+
+.celebration-icon{
+  font-size:90px;margin-bottom:32px;display:block;
+  animation:bounceIn .6s cubic-bezier(.36,.07,.19,.97) both,tada 1s ease 1s;
+}
+.s4-badge{
+  display:inline-block;font-family:'Lato',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:.6em;text-transform:uppercase;
+  background:var(--gold);color:var(--dark);
+  padding:8px 28px;margin-bottom:24px;
+  animation:scaleIn .6s ease .3s both;
+}
+.s4-title{
+  font-family:'Playfair Display',serif;font-style:italic;font-weight:900;
+  font-size:clamp(34px,8vw,64px);
+  background:linear-gradient(90deg,var(--gold-light),var(--gold),#fff,var(--gold),var(--gold-light));
+  background-size:300% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmerGold 2s linear infinite,floatUp .8s ease .4s both;
+  margin-bottom:16px;line-height:1.2;
+}
+.s4-text{
+  font-family:'Cormorant Garamond',serif;font-size:clamp(17px,4vw,21px);
+  color:rgba(255,255,255,.8);line-height:2;margin-bottom:48px;
+  animation:floatUp .8s ease .6s both;
+}
+
+/* Cards de instruções */
+.instructions-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px;
+  animation:floatUp .8s ease .8s both;
+}
+.instr-card{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(201,168,76,.25);
+  padding:28px 20px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.instr-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.instr-icon{font-size:40px;display:block;margin-bottom:14px}
+.instr-title{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:20px;color:var(--gold-light);margin-bottom:12px;
+}
+.instr-text{
+  font-family:'Cormorant Garamond',serif;font-size:16px;
+  color:rgba(255,255,255,.65);line-height:1.9;
+}
+.instr-text strong{color:#fff;font-weight:500}
+
+/* Paleta marsala */
+.palette-wrap{margin:16px 0 8px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.palette-swatch{
+  width:28px;height:28px;border-radius:50%;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
+  border:2px solid rgba(255,255,255,.2);
+  transition:transform .2s;
+}
+.palette-swatch:hover{transform:scale(1.2)}
+
+.s4-footer{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(20px,5vw,28px);color:var(--gold);
+  animation:floatUp .8s ease 1s both;
+  margin-top:8px;
+}
+.s4-date{
+  font-family:'Lato',sans-serif;font-weight:300;font-size:12px;
+  letter-spacing:.4em;text-transform:uppercase;color:rgba(255,255,255,.4);
+  margin-top:10px;animation:floatUp .8s ease 1.1s both;
+}
+
+/* ══════════════════
+   TELA 5 — RECUSA
+══════════════════ */
+#s5{background:linear-gradient(160deg,#080208 0%,#150410 100%)}
+.s5-content{position:relative;z-index:2;text-align:center;padding:60px 24px;max-width:600px;margin:0 auto}
+.s5-icon{font-size:80px;display:block;margin-bottom:28px;animation:floatUp .6s ease both}
+.s5-title{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:clamp(30px,7vw,52px);color:#fff;margin-bottom:16px;
+  animation:floatUp .8s ease .2s both;
+}
+.s5-text{
+  font-family:'Cormorant Garamond',serif;font-size:clamp(17px,4vw,21px);
+  color:rgba(255,255,255,.65);line-height:2;margin-bottom:36px;
+  animation:floatUp .8s ease .4s both;
+}
+.reconsider-btn{
+  font-family:'Lato',sans-serif;font-weight:700;font-size:11px;
+  letter-spacing:.35em;text-transform:uppercase;
+  background:var(--marsala);color:#fff;border:none;
+  padding:16px 40px;cursor:pointer;
+  transition:all .3s;animation:floatUp .8s ease .6s both;
+  box-shadow:0 4px 20px rgba(122,37,53,.5);
+}
+.reconsider-btn:hover{background:var(--marsala-light);transform:translateY(-2px)}
+
+/* Confetti canvas */
+#confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10}
+
+/* Stars */
+.star{
+  position:absolute;border-radius:50%;background:#fff;
+  animation:twinkle var(--d,3s) ease-in-out infinite;
+  opacity:0;
+}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(0.5)}50%{opacity:var(--op,0.8);transform:scale(1)}}
+
+
+/* ── CAMPO NOME ── */
+.name-input-wrap{
+  margin:0 auto 32px;max-width:340px;
+  animation:floatUp .8s ease .8s both;
+}
+.name-label{
+  display:block;font-family:'Lato',sans-serif;font-weight:700;
+  font-size:10px;letter-spacing:.4em;text-transform:uppercase;
+  color:rgba(255,255,255,.4);margin-bottom:12px;text-align:left;
+}
+.name-field{
+  width:100%;background:rgba(255,255,255,.06);
+  border:none;border-bottom:2px solid rgba(201,168,76,.4);
+  padding:14px 4px;font-family:'Cormorant Garamond',serif;font-size:22px;
+  color:#fff;outline:none;transition:border-color .3s;
+  border-radius:0;text-align:center;
+}
+.name-field:focus{border-color:var(--gold)}
+.name-field::placeholder{color:rgba(255,255,255,.2)}
+
+/* ── ADMIN ── */
+#s-admin{background:#0a0205;min-height:100vh}
+.admin-header{
+  background:#1a0810;padding:22px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(201,168,76,.15);
+}
+.admin-title{font-family:'Playfair Display',serif;font-style:italic;font-size:22px;color:var(--gold)}
+.admin-sub{font-family:'Lato',sans-serif;font-weight:300;font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:3px}
+.admin-back{font-family:'Lato',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4);cursor:pointer;background:none;border:1px solid rgba(255,255,255,.15);padding:8px 16px;transition:all .3s}
+.admin-back:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+.admin-body{padding:32px;max-width:900px;margin:0 auto}
+.admin-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:32px}
+.stat-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);padding:18px 22px;border-radius:4px}
+.stat-n{font-family:'Playfair Display',serif;font-size:38px;font-weight:700;color:#fff;line-height:1}
+.stat-l{font-family:'Lato',sans-serif;font-weight:300;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:6px}
+.stat-box.yes .stat-n{color:#7ecba1}
+.stat-box.no .stat-n{color:#e08090}
+.admin-table{width:100%;border-collapse:collapse}
+.admin-table th{font-family:'Lato',sans-serif;font-weight:700;font-size:10px;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:10px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.06)}
+.admin-table td{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.admin-table tr:hover td{background:rgba(255,255,255,.02)}
+.td-name{font-family:'Cormorant Garamond',serif;font-size:18px;color:#fff;font-weight:500}
+.td-date{font-family:'Lato',sans-serif;font-weight:300;font-size:12px;color:rgba(255,255,255,.3)}
+.badge-yes{display:inline-block;font-family:'Lato',sans-serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;padding:4px 12px;border-radius:2px;background:rgba(126,203,161,.15);color:#7ecba1;border:1px solid rgba(126,203,161,.25)}
+.badge-no{display:inline-block;font-family:'Lato',sans-serif;font-size:10px;letter-spacing:.15em;text-transform:uppercase;padding:4px 12px;border-radius:2px;background:rgba(224,128,144,.15);color:#e08090;border:1px solid rgba(224,128,144,.25)}
+.admin-empty{text-align:center;padding:60px;color:rgba(255,255,255,.2);font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px}
+.del-btn{background:none;border:none;color:rgba(255,255,255,.15);cursor:pointer;font-size:16px;padding:4px 8px;transition:color .2s}
+.del-btn:hover{color:#e08090}
+.export-btn{background:rgba(122,37,53,.3);border:1px solid rgba(122,37,53,.5);color:#e0a0b0;padding:10px 18px;font-family:'Lato',sans-serif;font-size:11px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .2s;margin-left:auto}
+.export-btn:hover{background:var(--marsala);color:#fff}
+.admin-controls{display:flex;gap:12px;margin-bottom:22px;align-items:center;flex-wrap:wrap}
+.filter-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);padding:9px 18px;font-family:'Lato',sans-serif;font-size:11px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:all .2s}
+.filter-btn.active,.filter-btn:hover{background:var(--marsala);border-color:var(--marsala);color:#fff}
+
+/* LOGIN */
+.login-over{position:fixed;inset:0;background:rgba(5,0,8,.95);z-index:1000;display:flex;align-items:center;justify-content:center}
+.login-box{background:#1a0810;border:1px solid rgba(201,168,76,.25);padding:48px 40px;width:100%;max-width:360px;text-align:center}
+.login-ttl{font-family:'Playfair Display',serif;font-style:italic;font-size:24px;color:var(--gold);margin-bottom:6px}
+.login-sub2{font-family:'Lato',sans-serif;font-weight:300;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:28px}
+.login-inp{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:14px 16px;color:#fff;font-family:'Lato',sans-serif;font-size:15px;outline:none;margin-bottom:14px;border-radius:0;text-align:center;letter-spacing:.3em}
+.login-inp:focus{border-color:rgba(201,168,76,.5)}
+.login-go{width:100%;padding:14px;background:var(--marsala);color:#fff;border:none;font-family:'Lato',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3em;text-transform:uppercase;cursor:pointer;transition:background .3s}
+.login-go:hover{background:var(--marsala-light)}
+.login-err{font-family:'Lato',sans-serif;font-size:12px;color:#e08090;margin-top:10px;display:none}
+.login-cancel{background:none;border:none;color:rgba(255,255,255,.2);font-family:'Lato',sans-serif;font-size:11px;cursor:pointer;margin-top:14px;text-decoration:underline}
+
+/* FOOTER ADMIN LINK */
+.footer-admin-link{
+  position:fixed;bottom:16px;right:20px;z-index:50;
+  font-family:'Lato',sans-serif;font-size:10px;letter-spacing:.15em;
+  color:rgba(255,255,255,.12);cursor:pointer;text-decoration:none;
+  transition:color .3s;
+}
+.footer-admin-link:hover{color:rgba(255,255,255,.4)}
+
+@media(max-width:480px){
+  .instructions-grid{grid-template-columns:1fr}
+  .decision-btns{flex-direction:column;align-items:center}
+  .btn-accept,.btn-decline{width:100%;max-width:300px}
+  .door-container{width:160px;height:220px}
+  .door-left,.door-right{font-size:32px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+<canvas id="confetti"></canvas>
+
+<!-- ══ TELA 1 — MISTÉRIO ══ -->
+<section class="screen active" id="s1">
+  <div class="s1-content">
+    <p class="mystery-tag">Uma mensagem especial para você</p>
+
+    <div class="envelope-wrap" onclick="openEnvelope()">
+      <div class="envelope" id="envelope">
+        <div class="env-seal">💌</div>
+      </div>
+    </div>
+
+    <h1 class="mystery-title">Temos algo<br>importante<br>a dizer...</h1>
+    <p class="mystery-sub">Clique no envelope para descobrir</p>
+    <button class="open-btn" onclick="openEnvelope()"><span>Abrir agora ✦</span></button>
+  </div>
+</section>
+
+<!-- ══ TELA 2 — REVELAÇÃO ══ -->
+<section class="screen" id="s2">
+  <div class="s2-content">
+    <div class="door-container">
+      <div class="door-reveal">
+        <span class="door-reveal-icon">💍</span>
+      </div>
+      <div class="door-left" id="door-l">✦</div>
+      <div class="door-right" id="door-r">✦</div>
+    </div>
+
+    <div class="reveal-badge">✦ Notícia incrível ✦</div>
+    <h2 class="reveal-title">Vamos nos Casar!</h2>
+    <p class="reveal-names">Rosana &amp; Italo</p>
+    <p class="reveal-text">
+      É com o coração transbordando de alegria que compartilhamos<br>
+      essa notícia que há tanto tempo esperávamos dar a você.
+    </p>
+    <div class="hearts-row">
+      <span class="h-icon">❤</span>
+      <span class="h-icon">❤</span>
+      <span class="h-icon">❤</span>
+      <span class="h-icon">❤</span>
+      <span class="h-icon">❤</span>
+    </div>
+    <button class="next-btn" onclick="goToS3()">Continuar → </button>
+  </div>
+</section>
+
+<!-- ══ TELA 3 — PEDIDO ══ -->
+<section class="screen" id="s3">
+  <div class="s3-content">
+    <div class="ring-wrap">
+      <span class="ring-icon">💍</span>
+    </div>
+    <p class="s3-label">Um pedido especial</p>
+    <h2 class="s3-title">Nos dão essa honra?</h2>
+
+    <p class="s3-verse">
+      "Vocês foram promovidos a padrinhos..."
+    </p>
+    <p class="s3-verse-ref">— Rosana &amp; Italo</p>
+
+    <p class="s3-text">
+      É uma emoção única e indescritível tê-los ao nosso lado<br>
+      nesse dia tão especial. As atribuições do cargo vocês já sabem:<br>
+      <strong>aconselhar, visitar, ajudar, incentivar,<br>
+      orar, abraçar e acima de tudo, Amar!</strong>
+    </p>
+
+    <div class="name-input-wrap">
+      <label class="name-label">Seu nome</label>
+      <input class="name-field" type="text" id="padrinho-name" placeholder="Como você se chama?">
+    </div>
+    <div class="decision-btns">
+      <button class="btn-accept" onclick="accept()"><span>💛 Sim, aceito com amor!</span></button>
+      <button class="btn-decline" onclick="decline()">Não posso desta vez...</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TELA 4 — CELEBRAÇÃO ══ -->
+<section class="screen" id="s4">
+  <div class="s4-content">
+    <span class="celebration-icon">🎊</span>
+    <div class="s4-badge">✦ Parabéns, Padrinhos! ✦</div>
+    <h2 class="s4-title">Que alegria!<br>Obrigados!</h2>
+    <p class="s4-text">
+      Que emoção ter vocês ao nosso lado nesse momento tão especial!<br>
+      Sejam muito bem-vindos à nossa família. ❤
+    </p>
+
+    <!-- Instruções -->
+    <div class="instructions-grid">
+      <div class="instr-card">
+        <span class="instr-icon">👗</span>
+        <p class="instr-title">Madrinha</p>
+        <p class="instr-text">
+          Vestido longo na paleta<br>
+          <strong>MARSALA</strong><br>
+          Escolha o modelo que se sentir<br>
+          elegante e confortável.
+        </p>
+        <div class="palette-wrap">
+          <div class="palette-swatch" style="background:#7a2535" title="Marsala escuro"></div>
+          <div class="palette-swatch" style="background:#a83048" title="Marsala médio"></div>
+          <div class="palette-swatch" style="background:#c45a70" title="Marsala claro"></div>
+          <div class="palette-swatch" style="background:#d4899a" title="Rose"></div>
+          <div class="palette-swatch" style="background:#e8c0c8" title="Blush"></div>
+        </div>
+      </div>
+      <div class="instr-card">
+        <span class="instr-icon">🤵</span>
+        <p class="instr-title">Padrinho</p>
+        <p class="instr-text">
+          <strong>Terno preto</strong><br>
+          Camisa branca<br>
+          <strong>Gravata Marsala</strong><br>
+          na mesma cor do vestido<br>da madrinha
+        </p>
+        <div class="palette-wrap">
+          <div class="palette-swatch" style="background:#111" title="Terno preto"></div>
+          <div class="palette-swatch" style="background:#f5f5f5;border-color:#ccc" title="Camisa branca"></div>
+          <div class="palette-swatch" style="background:#7a2535" title="Gravata marsala"></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="s4-footer">19 de Setembro de 2026</p>
+    <p class="s4-date">Salão de Eventos Coma Bem · Rua Faxinal, Chácara 36A</p>
+  </div>
+</section>
+
+<!-- ══ TELA 5 — RECUSA ══ -->
+<section class="screen" id="s5">
+  <div class="s5-content">
+    <span class="s5-icon">😢</span>
+    <h2 class="s5-title">Que pena...</h2>
+    <p class="s5-text">
+      Ficamos com o coração partido, mas respeitamos<br>
+      a sua decisão. Sua presença em nossas vidas<br>
+      já é um presente imenso para nós.<br><br>
+      Sempre haverá um lugar especial para você<br>
+      no nosso coração. ❤
+    </p>
+    <button class="reconsider-btn" onclick="goToS3()">💭 Deixa eu repensar...</button>
+  </div>
+</section>
+
+<script>
+// ── PARTÍCULAS DE FUNDO
+const pc = document.getElementById('particles');
+const px = pc.getContext('2d');
+let stars = [];
+
+function resizeCanvas(){
+  pc.width = window.innerWidth;
+  pc.height = window.innerHeight;
+  document.getElementById('confetti').width = window.innerWidth;
+  document.getElementById('confetti').height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+for(let i=0;i<120;i++){
+  stars.push({
+    x: Math.random()*window.innerWidth,
+    y: Math.random()*window.innerHeight,
+    r: Math.random()*1.5+0.3,
+    a: Math.random(),
+    speed: Math.random()*0.005+0.002,
+    phase: Math.random()*Math.PI*2
+  });
+}
+
+function drawStars(){
+  px.clearRect(0,0,pc.width,pc.height);
+  stars.forEach(s=>{
+    s.phase += s.speed;
+    s.a = (Math.sin(s.phase)+1)/2 * 0.8 + 0.1;
+    px.beginPath();
+    px.arc(s.x,s.y,s.r,0,Math.PI*2);
+    px.fillStyle=`rgba(255,255,255,${s.a})`;
+    px.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+// ── CONFETTI
+const cc = document.getElementById('confetti');
+const cx2 = cc.getContext('2d');
+let confettiPieces = [];
+let confettiActive = false;
+
+const colors = ['#c9a84c','#e8cc7a','#7a2535','#a83048','#fff','#f5e8eb','#d4899a'];
+
+function launchConfetti(){
+  confettiActive = true;
+  confettiPieces = [];
+  for(let i=0;i<180;i++){
+    confettiPieces.push({
+      x: Math.random()*cc.width,
+      y: -20 - Math.random()*200,
+      w: Math.random()*12+4,
+      h: Math.random()*6+3,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      vx: (Math.random()-0.5)*4,
+      vy: Math.random()*4+2,
+      rot: Math.random()*360,
+      vrot: (Math.random()-0.5)*8,
+      alpha: 1
+    });
+  }
+  animateConfetti();
+}
+
+function animateConfetti(){
+  if(!confettiActive) return;
+  cx2.clearRect(0,0,cc.width,cc.height);
+  let alive = false;
+  confettiPieces.forEach(p=>{
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.05;
+    p.rot += p.vrot;
+    if(p.y < cc.height+20) alive = true;
+    cx2.save();
+    cx2.translate(p.x,p.y);
+    cx2.rotate(p.rot*Math.PI/180);
+    cx2.globalAlpha = Math.max(0, p.alpha);
+    cx2.fillStyle = p.color;
+    cx2.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    cx2.restore();
+  });
+  if(alive) requestAnimationFrame(animateConfetti);
+  else{ cx2.clearRect(0,0,cc.width,cc.height); confettiActive=false; }
+}
+
+// ── NAVEGAÇÃO
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── ABRIR ENVELOPE
+function openEnvelope(){
+  const env = document.getElementById('envelope');
+  env.classList.add('open');
+  env.style.animation = 'none';
+  setTimeout(()=>showScreen('s2'), 600);
+  setTimeout(()=>{
+    document.getElementById('door-l').classList.add('open');
+    document.getElementById('door-r').classList.add('open');
+  }, 800);
+}
+
+// ── FIREBASE REST
+const PROJECT_ID='site-casamento-b0636';
+const API_KEY='AIzaSyA2wSCks_K5xYhZSP7iyjhbIhxt2VpNSEU';
+const COLLECTION='padrinhos';
+const BASE_URL=`https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION}`;
+const ADMIN_PASS='rosana2026';
+
+function toFS(obj){
+  const fields={};
+  for(const[k,v] of Object.entries(obj)){
+    if(typeof v==='boolean') fields[k]={booleanValue:v};
+    else if(typeof v==='number') fields[k]={integerValue:String(v)};
+    else fields[k]={stringValue:String(v||'')};
+  }
+  return {fields};
+}
+function fromFS(doc){
+  if(!doc.fields) return null;
+  const o={};
+  for(const[k,v] of Object.entries(doc.fields)){
+    if(v.stringValue!==undefined) o[k]=v.stringValue;
+    else if(v.integerValue!==undefined) o[k]=Number(v.integerValue);
+    else if(v.booleanValue!==undefined) o[k]=v.booleanValue;
+    else o[k]=null;
+  }
+  return o;
+}
+async function saveResp(g){
+  try{
+    await fetch(`${BASE_URL}/${g.id}?key=${API_KEY}`,{
+      method:'PATCH',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(toFS(g))
+    });
+  }catch(e){console.error(e);}
+}
+async function loadResps(){
+  try{
+    const r=await fetch(`${BASE_URL}?key=${API_KEY}&pageSize=200`);
+    const d=await r.json();
+    if(!d.documents) return [];
+    return d.documents.map(x=>fromFS(x)).filter(Boolean).sort((a,b)=>a.id-b.id);
+  }catch(e){return [];}
+}
+async function deleteResp(id){
+  try{ await fetch(`${BASE_URL}/${id}?key=${API_KEY}`,{method:'DELETE'}); }catch(e){}
+}
+
+// ── NAVEGAÇÃO
+function goToS3(){ showScreen('s3'); }
+
+// ── VALIDAR NOME
+function getName(){
+  const nm=document.getElementById('padrinho-name').value.trim();
+  if(!nm){
+    const el=document.getElementById('padrinho-name');
+    el.style.borderColor='#e08090';el.focus();
+    setTimeout(()=>el.style.borderColor='rgba(201,168,76,.4)',1500);
+    return null;
+  }
+  return nm;
+}
+
+// ── ACEITAR
+async function accept(){
+  const nm=getName(); if(!nm) return;
+  const g={id:Date.now(),name:nm,response:'yes',date:new Date().toLocaleString('pt-BR')};
+  await saveResp(g);
+  showScreen('s4');
+  setTimeout(()=>{
+    launchConfetti();
+    setTimeout(launchConfetti,2000);
+    setTimeout(launchConfetti,4000);
+  },400);
+}
+
+// ── RECUSAR
+async function decline(){
+  const nm=getName(); if(!nm) return;
+  const g={id:Date.now(),name:nm,response:'no',date:new Date().toLocaleString('pt-BR')};
+  await saveResp(g);
+  showScreen('s5');
+}
+
+// ── ADMIN LOGIN
+function openLogin(){
+  document.getElementById('login-over').style.display='flex';
+  document.getElementById('login-inp').value='';
+  document.getElementById('login-err').style.display='none';
+  setTimeout(()=>document.getElementById('login-inp').focus(),100);
+}
+function checkLogin(){
+  if(document.getElementById('login-inp').value===ADMIN_PASS){
+    document.getElementById('login-over').style.display='none';
+    showScreen('s-admin');
+    renderAdmin();
+  }else{
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('login-inp').value='';
+  }
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('login-over').style.display==='flex') checkLogin();
+  if(e.key==='Escape') document.getElementById('login-over').style.display='none';
+});
+
+let cachedResps=[];
+let currentFilter='all';
+
+function setFilter(f){
+  currentFilter=f;
+  ['all','yes','no'].forEach(k=>document.getElementById('f-'+k).classList.toggle('active',k===f));
+  renderTable();
+}
+
+async function renderAdmin(){
+  cachedResps=await loadResps();
+  const yes=cachedResps.filter(r=>r.response==='yes');
+  const no=cachedResps.filter(r=>r.response==='no');
+  document.getElementById('st-yes').textContent=yes.length;
+  document.getElementById('st-no').textContent=no.length;
+  document.getElementById('st-total').textContent=cachedResps.length;
+  renderTable();
+}
+
+function renderTable(){
+  const q=cachedResps.filter(r=>currentFilter==='all'||r.response===currentFilter);
+  const tbody=document.getElementById('admin-tbody');
+  const empty=document.getElementById('admin-empty');
+  if(!q.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=q.map((r,i)=>{
+    const badge=r.response==='yes'?'<span class="badge-yes">Aceitou 💛</span>':'<span class="badge-no">Recusou</span>';
+    return`<tr>
+      <td class="td-date" style="color:rgba(255,255,255,.2)">${i+1}</td>
+      <td class="td-name">${r.name}</td>
+      <td>${badge}</td>
+      <td class="td-date">${r.date}</td>
+      <td><button class="del-btn" onclick="delResp(${r.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function delResp(id){
+  if(!confirm('Remover esta resposta?')) return;
+  await deleteResp(id);
+  await renderAdmin();
+}
+
+function exportCSV(){
+  if(!cachedResps.length){alert('Nenhuma resposta para exportar.');return;}
+  const h=['Nome','Resposta','Data'];
+  const rows=cachedResps.map(r=>[r.name,r.response==='yes'?'Aceitou':'Recusou',r.date]);
+  const csv=[h,...rows].map(row=>row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
+  a.download='padrinhos-rosana-italo.csv';a.click();
+}
+</script>
+
+<!-- LOGIN -->
+<div class="login-over" id="login-over" style="display:none">
+  <div class="login-box">
+    <p class="login-ttl">Área dos Noivos</p>
+    <p class="login-sub2">Respostas dos padrinhos</p>
+    <input class="login-inp" type="password" id="login-inp" placeholder="••••••••">
+    <button class="login-go" onclick="checkLogin()">Entrar</button>
+    <p class="login-err" id="login-err">Senha incorreta.</p><br>
+    <button class="login-cancel" onclick="document.getElementById('login-over').style.display='none'">Cancelar</button>
+  </div>
+</div>
+
+<!-- TELA ADMIN -->
+<section class="screen" id="s-admin">
+  <div class="admin-header">
+    <div>
+      <div class="admin-title">Rosana &amp; Italo</div>
+      <div class="admin-sub">Respostas dos padrinhos</div>
+    </div>
+    <button class="admin-back" onclick="showScreen('s1')">← Voltar</button>
+  </div>
+  <div class="admin-body">
+    <div class="admin-stats">
+      <div class="stat-box yes"><div class="stat-n" id="st-yes">0</div><div class="stat-l">Aceitaram</div></div>
+      <div class="stat-box no"><div class="stat-n" id="st-no">0</div><div class="stat-l">Recusaram</div></div>
+      <div class="stat-box"><div class="stat-n" id="st-total">0</div><div class="stat-l">Respostas</div></div>
+    </div>
+    <div class="admin-controls">
+      <button class="filter-btn active" id="f-all" onclick="setFilter('all')">Todos</button>
+      <button class="filter-btn" id="f-yes" onclick="setFilter('yes')">Aceitaram</button>
+      <button class="filter-btn" id="f-no" onclick="setFilter('no')">Recusaram</button>
+      <button class="export-btn" onclick="exportCSV()">↓ Exportar CSV</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="admin-table">
+        <thead><tr><th>#</th><th>Nome</th><th>Resposta</th><th>Data</th><th></th></tr></thead>
+        <tbody id="admin-tbody"></tbody>
+      </table>
+      <div class="admin-empty" id="admin-empty" style="display:none">Nenhuma resposta ainda. 💍</div>
+    </div>
+  </div>
+</section>
+
+<a class="footer-admin-link" onclick="openLogin()">área dos noivos</a>
+
+</body>
+</html>
